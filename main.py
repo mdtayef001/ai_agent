@@ -3,6 +3,7 @@ import os
 
 from dotenv import load_dotenv
 from google import genai
+from google.genai import types
 
 
 def main():
@@ -17,21 +18,22 @@ def main():
         raise RuntimeError("api_key invalid")
 
     client = genai.Client(api_key=api_key)
+    message = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
+    generate_content(client, message)
 
+
+def generate_content(client, message):
     response = client.models.generate_content(
-        model="gemini-2.5-flash", contents=args.user_prompt
+        model="gemini-2.5-flash", contents=message
     )
 
-    # Verification of metadata
     if response.usage_metadata is None:
         raise RuntimeError("usage_metadata invalid - API request likely failed")
 
-    # Accessing the counts
     prompt_tokens = response.usage_metadata.prompt_token_count
     response_tokens = response.usage_metadata.candidates_token_count
 
-    # Printing in the exact requested format
-    print(f"User prompt: {args.user_prompt}")
+    print(f"User prompt: {message[0].parts[0].text}")
     print(f"Prompt tokens: {prompt_tokens}")
     print(f"Response tokens: {response_tokens}")
     print("Response:")
