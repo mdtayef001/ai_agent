@@ -9,6 +9,7 @@ from google.genai import types
 def main():
     parser = argparse.ArgumentParser(description="Chatbot")
     parser.add_argument("user_prompt", type=str, help="User prompt")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
 
     load_dotenv()
@@ -19,10 +20,10 @@ def main():
 
     client = genai.Client(api_key=api_key)
     message = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
-    generate_content(client, message)
+    generate_content(client, message, args.verbose)
 
 
-def generate_content(client, message):
+def generate_content(client, message, verbose_flag):
     response = client.models.generate_content(
         model="gemini-2.5-flash", contents=message
     )
@@ -30,12 +31,14 @@ def generate_content(client, message):
     if response.usage_metadata is None:
         raise RuntimeError("usage_metadata invalid - API request likely failed")
 
-    prompt_tokens = response.usage_metadata.prompt_token_count
-    response_tokens = response.usage_metadata.candidates_token_count
+    if verbose_flag:
+        prompt_tokens = response.usage_metadata.prompt_token_count
+        response_tokens = response.usage_metadata.candidates_token_count
 
-    print(f"User prompt: {message[0].parts[0].text}")
-    print(f"Prompt tokens: {prompt_tokens}")
-    print(f"Response tokens: {response_tokens}")
+        print(f"User prompt: {message[0].parts[0].text}")
+        print(f"Prompt tokens: {prompt_tokens}")
+        print(f"Response tokens: {response_tokens}")
+
     print("Response:")
     print(response.text)
 
