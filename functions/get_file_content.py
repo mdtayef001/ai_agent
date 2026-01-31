@@ -1,4 +1,5 @@
 import os
+from google.genai import types
 
 # from utils.config import MAX_CHARS
 
@@ -30,5 +31,21 @@ def get_file_content(working_directory, file_path):
         return f"Error: {str(e)}"
 
 
-# result = get_file_content("/home/tayef/code/Boot.dev/ai_agent/calculator", "lorem.txt")
-# print(result)
+schema_get_file_content = types.FunctionDeclaration(
+    name="get_file_content",
+    description="Get files contents in a specified directory relative to the working directory",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "directory": types.Schema(
+                type=types.Type.STRING,
+                description="Directory path to list files from, relative to the working directory (default is the working directory itself)",
+            ),
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="Path to the file relative to the working directory",
+            ),
+        },
+        required=["file_path"],
+    ),
+)

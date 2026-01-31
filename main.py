@@ -21,9 +21,12 @@ def main():
         raise RuntimeError("api_key invalid")
 
     client = genai.Client(api_key=api_key)
+
     message = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
+
     if args.verbose:
         print(f"User prompt: {args.user_prompt}\n")
+
     generate_content(client, message, args.verbose)
 
 
@@ -35,6 +38,7 @@ def generate_content(client, messages, verbose):
             tools=[available_functions], system_instruction=system_prompt
         ),
     )
+
     if not response.usage_metadata:
         raise RuntimeError("Gemini API response appears to be malformed")
 
